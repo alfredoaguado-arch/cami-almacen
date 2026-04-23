@@ -354,12 +354,22 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxH0xusW4qYt2WCU6rQN
 
 // ── Token de sesion ──────────────────────────────────────────
 function getToken() {
-  const token = sessionStorage.getItem('cami_session');
-  if (!token) {
+  const raw = sessionStorage.getItem('cami_session');
+  if (!raw) {
     redirigirALogin();
     return null;
   }
-  return token;
+  try {
+    const session = JSON.parse(raw);
+    if (!session.token) {
+      redirigirALogin();
+      return null;
+    }
+    return session.token;
+  } catch(e) {
+    // Fallback: si alguna vez hubo un token plano (legacy)
+    return raw;
+  }
 }
 
 function redirigirALogin() {
